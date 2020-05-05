@@ -3,16 +3,16 @@
 ## Manage Analog Devices and Common Area Phones
 
 Creating and administering Analog Devices and Common Area Phones in Lync and Skype for Business is quite tedious. (I have a terrible record for forgetting to assign a PIN to Common Area Phones&hellip;)
+
 Inspired by a customer (and to the horror of a purist peer) I've created a PowerShell script that provides a GUI for the administration of both device types. I give you "MAdCaP.ps1" - short for "Manage Analog Devices & Common  Area Phones".
+
 ## The "New Object" tab
 
 <img src="https://user-images.githubusercontent.com/11004787/81054933-0fc1e900-8f0b-11ea-8155-94a75400393f.png" alt="" width="600" />
 
-
 ## The "Existing Object" tab
 
 <img src="https://user-images.githubusercontent.com/11004787/81054975-20725f00-8f0b-11ea-95cc-abd81dce4718.png" alt="" width="600" />
-
 
 ## Features
 
