@@ -5,10 +5,12 @@
 <p>Creating and administering Analog Devices and Common Area Phones in Lync and Skype for Business is quite tedious. (I have a terrible record for forgetting to assign a PIN to Common Area Phones&hellip;)</p>
 <p>Inspired by a customer (and to the horror of a purist peer) I&rsquo;ve created a PowerShell script that provides a GUI for the administration of both device types. I give you &ldquo;MAdCaP.ps1&rdquo; &ndash; short for &ldquo;Manage Analog Devices &amp; Common  Area Phones&rdquo;.</p>
 <h3>The "New Object" tab</h3>
-<p><img id="198965" src="https://i1.gallery.technet.s-msft.com/madcapps1-a-gui-to-create-cbd2e3d8/image/file/198965/1/madcap-v2-new.png" alt="" width="624" height="544" /></p>
+
+<img src="https://user-images.githubusercontent.com/11004787/81054933-0fc1e900-8f0b-11ea-8155-94a75400393f.png" alt="" width="600" />
 <p>&nbsp;</p>
 <h3>The "Existing Object" tab</h3>
-<p><img id="198966" src="https://i1.gallery.technet.s-msft.com/madcapps1-a-gui-to-create-cbd2e3d8/image/file/198966/1/madcap-v2-existing.png" alt="" width="624" height="544" /></p>
+
+<img src="https://user-images.githubusercontent.com/11004787/81054975-20725f00-8f0b-11ea-95cc-abd81dce4718.png" alt="" width="600" />
 <p>&nbsp;</p>
 <h3>Features</h3>
 <ul>
@@ -71,5 +73,14 @@
 <p>&nbsp;</p>
 <p>There's more info and a full history over on&nbsp;<a href="https://greiginsydney.com/madcap-ps1-a-gui-for-lync-analog-devices-common-area-phones" target="_blank">my blog @ greiginsydney.com</a>&nbsp;- and you can find a list of <a href="https://greiginsydney.com/scripts/" target="_blank">all my other PowerShell utilities here</a>.</p>
 <p>&nbsp;</p>
-&nbsp;
-<p>- Greig.</p>
+
+<br>
+
+\- G.
+
+<br>
+
+This script was originally published at [https://greiginsydney.com/madcap-ps1-a-gui-for-lync-analog-devices-common-area-phones/](https://greiginsydney.com/madcap-ps1-a-gui-for-lync-analog-devices-common-area-phones/).
+
+
+
