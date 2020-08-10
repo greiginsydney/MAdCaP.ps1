@@ -9,8 +9,8 @@
 	It also captures the installation's existing parameters (SIP domains, Gateway FQDNs, Dial Plans and Policies), enabling them to be easily selected.
 
 .NOTES  
-    Version      	   	: 2.1
-	Date			    : 9th June 2018 
+    Version      	   	: 2.2
+	Date			    : 6th August 2020
 	Lync Version		: 2010, 2013 & SfB2015
     Author    			: Greig Sheridan
 	Header stolen from  : Pat Richard's amazing "Get-CsConnections.ps1"
@@ -19,10 +19,13 @@
 					- ??
 	
 	Revision History	
+					v2.2 - 6th August 2020
+						Added James Arber's [regex]::Escape to handle funky chars in the object names / OUs. (Thanks James)
+
 					v2.1 - 9th June 2018
 						Rearranged calls to "handler_ValidateGo" to fix where the Go button wasn't lighting/going out
 						Corrected errors in the New Object DN and OU popup help text
-	
+
 					v2.0 - 29th April 2018
 						Incorporated my version of Pat's "Get-UpdateInfo". Credit: https://ucunleashed.com/3168
 						Added test for AD module to prevent re-loading unnecessarily  
@@ -107,7 +110,7 @@ Param(
 	[switch] $ShowExisting
 )
 
-$ScriptVersion = "2.1"
+$ScriptVersion = "2.2"
 $Error.Clear()          #Clear PowerShell's error variable
 $Global:Debug = $psboundparameters.debug.ispresent
 
@@ -635,7 +638,7 @@ function Get-UpdateInfo
       Rights Required       : N/A
       Sched Task Required   : No
       Lync/Skype4B Version  : N/A
-      Author/Copyright      : © Pat Richard, Office Servers and Services (Skype for Business) MVP - All Rights Reserved
+      Author/Copyright      : Â© Pat Richard, Office Servers and Services (Skype for Business) MVP - All Rights Reserved
       Email/Blog/Twitter    : pat@innervation.com  https://ucunleashed.com  @patrichard
       Donations             : https://www.paypal.me/PatRichard
       Dedicated Post        : https://ucunleashed.com/3168
@@ -1448,6 +1451,10 @@ function Update-Display
 		if ($AD_name -ne "")
 		{
 			# Then they've not selected the first, empty value
+			
+			# First let's escape anything funny in the ID that might annoy the Where-Object -match
+			$AD_name = [regex]::Escape($AD_name)
+			
 			$SelectedAD = $Global:ADs | where-object {$_.Identity -match $AD_name}
 			$OutputBox.Text = ($SelectedAD | Format-List | Out-String).Trim()
 			if ($SelectedAD.DialPlan -eq $null)
@@ -1490,6 +1497,10 @@ function Update-Display
 		if ($CA_name -ne "")
 		{
 			# Then they've not selected the first, empty value
+			
+			# First let's escape anything funny in the ID that might annoy the Where-Object -match
+			$CA_name = [regex]::Escape($CA_name)
+			
 			$SelectedCAP = $Global:CAPs | where-object {$_.Identity -match $CA_name}
 			$OutputBox.Text = ($SelectedCAP | Format-List | Out-String).Trim()
 			if ($SelectedCAP.DialPlan -eq $null)
@@ -1602,12 +1613,13 @@ function Update-ADCAPLists
 	$selectedIndex = 0
 	$ItemIndex = 1
 	foreach ($item in $FilteredADList)
-	{   
+	{
 		if ($item -ne $null) 
 		{
 			if ($global:LastTouchedObject -ne "")
 			{
-				if ($global:LastTouchedObject -match $item.DistinguishedName)
+				$NewItem = [regex]::Escape($item.DistinguishedName)
+				if ($global:LastTouchedObject -match $NewItem)
 				{
 					$selectedIndex = $ItemIndex
 				}
@@ -1626,12 +1638,13 @@ function Update-ADCAPLists
 	$selectedIndex = 0
 	$ItemIndex = 1
 	foreach ($item in $FilteredCAPList)
-	{   
+	{
 		if ($item -ne $null) 
 		{
 			if ($global:LastTouchedObject -ne "")
 			{
-				if ($global:LastTouchedObject -match $item.DistinguishedName)
+				$NewItem = [regex]::Escape($item.DistinguishedName)
+				if ($global:LastTouchedObject -match $NewItem)
 				{
 					$selectedIndex = $ItemIndex
 				}
@@ -2098,10 +2111,11 @@ $GoButton.Add_Click(
 	{
 	# "Existing Object"
 	# Do the analogs first:
-		if ($AnalogDeviceListbox.SelectedItems –ne $Null)
+		if ($AnalogDeviceListbox.SelectedItems -ne $Null)
 		{
 			foreach ($AnalogDevice in $AnalogDeviceListbox.SelectedItems)
 			{
+				$AnalogDevice = [regex]::Escape($AnalogDevice)
 				$SelectedAD = $Global:ADs | where-object {$_.Identity -match $AnalogDevice}
 				Grant-Policy ($SelectedAD)
 				# Analog phones don't have a client PIN
@@ -2109,10 +2123,11 @@ $GoButton.Add_Click(
 		}
 					
 		# Now the Common Area Phones:
-		if ($CommonAreaPhoneListbox.SelectedItems –ne $Null)
+		if ($CommonAreaPhoneListbox.SelectedItems -ne $Null)
 		{
 			foreach ($CommonAreaPhone in $CommonAreaPhoneListbox.SelectedItems)
-			{  
+			{
+				$CommonAreaPhone = [regex]::Escape($CommonAreaPhone)
 				$SelectedCAP = $Global:CAPs | where-object {$_.Identity -match $CommonAreaPhone}
 				Grant-Policy ($SelectedCAP)
 				if ($PinTextBox.Text -ne "")
@@ -2220,8 +2235,8 @@ WriteSettings $Configfile $Global:DefaultOU $Global:DefaultPool $Global:DefaultS
 # SIG # Begin signature block
 # MIIceAYJKoZIhvcNAQcCoIIcaTCCHGUCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUz6q2P8nAMjdqHm8/yAMdIltN
-# vlCgghenMIIFMDCCBBigAwIBAgIQA1GDBusaADXxu0naTkLwYTANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUOGxT6gW13qNcRWnImNFRoeXb
+# j1egghenMIIFMDCCBBigAwIBAgIQA1GDBusaADXxu0naTkLwYTANBgkqhkiG9w0B
 # AQsFADByMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYD
 # VQQLExB3d3cuZGlnaWNlcnQuY29tMTEwLwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFz
 # c3VyZWQgSUQgQ29kZSBTaWduaW5nIENBMB4XDTIwMDQxNzAwMDAwMFoXDTIxMDcw
@@ -2352,22 +2367,22 @@ WriteSettings $Configfile $Global:DefaultOU $Global:DefaultPool $Global:DefaultS
 # BgNVBAMTKERpZ2lDZXJ0IFNIQTIgQXNzdXJlZCBJRCBDb2RlIFNpZ25pbmcgQ0EC
 # EANRgwbrGgA18btJ2k5C8GEwCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAI
 # oAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIB
-# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFC4KTPW3JPt+/tgIuVBK
-# bNSCR3/NMA0GCSqGSIb3DQEBAQUABIIBAAa9zDmvLbcwmiqyro61gj0PYkis9A+q
-# pshjh2PDrUZ0JeO5n15xRJQ1NerWO5x0E28w6vF+Kn2x2qxXsTTxG6bhbH2FWQu/
-# rxuJD4+rlG7H149q8ZtLpTx/Axu3tUFST0B7ua69+mJBTNmySql6fMfAgvJAV9yh
-# hQJHS5i7hOvVe5RCL5Z5tw02qCeot24fyjyVnP0a9H/8qBgHSxYbK5me/+PBFp1l
-# QG6Sqyjj+T/+lBri9vfDf1WvzYHkw7z3jhoUyymAPGmaSmq6ocgKfjXfzr0+MCdg
-# /2+Jo7wofoCO3vUFdycnNI4yciK30PdY4gaTyFrloy6s/u72Ec+XMXuhggIPMIIC
+# CzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFNjOtvCZVFSahNN4FTg1
+# VVXjJ8IzMA0GCSqGSIb3DQEBAQUABIIBAFBswxoNbpp4tUulzAySPEFPlrkWhhdu
+# qLNoIQ3pXdZJlSvXC3oldA1pteTM+btkj+iVuTO2+E5P/c7U9lZr1hThgWoowMDn
+# iuBB86qmQW9qCmjhYD6oLV4z6QtoIM7iZpufG9fSzgqk+n65kpwwsauMJLYdOkCT
+# cuGnoGGW29DT03HoJrnSsYTLB0gXNE7Kmz9ytQVEjZr1Ka4EjFafnwfJZHiGVppz
+# T8bMOTafrAVgceFN7fMAZjDjKIkFZ3qi3BCHOuSe6iuPe2nHD+RVd+Uvuriy8ShI
+# WYPIcj+yFKBAlCVKgfefVIPM8gdF4rryq0b4qVOj5IugOvI4vwkKtAOhggIPMIIC
 # CwYJKoZIhvcNAQkGMYIB/DCCAfgCAQEwdjBiMQswCQYDVQQGEwJVUzEVMBMGA1UE
 # ChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMSEwHwYD
 # VQQDExhEaWdpQ2VydCBBc3N1cmVkIElEIENBLTECEAMBmgI6/1ixa9bV6uYX8GYw
 # CQYFKw4DAhoFAKBdMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcN
-# AQkFMQ8XDTIwMDUwNTExMzc0NFowIwYJKoZIhvcNAQkEMRYEFMdZZnVh4nY8rKvL
-# pKq8FojHt9l7MA0GCSqGSIb3DQEBAQUABIIBAHrlpHRWX2fdNyQs/HC/c0UsT8kw
-# jrJZOrFNyvq43mC+pQcdr1M9Ie6uH1dFg6eJOAtFLlGIdRKFw1XSogQVp1BfqTKk
-# OlCYP0IbOmTXYwY506uvu/iFBLs6EomnwmLUvFVpKNtdoaGgVogpduoFS7BJU0Iq
-# rQMH9jXwwi9rDp3UWbJ658TEa6Wc0BrbMSvzK6FKrDA2A+5v0RBCosti3P23YFsA
-# NNjYrfN/Pf0EMIi/dLAhOcjarzox998fY3kyXriCKwL4WgPMfFnnHRzT5pbSw8da
-# C5UMBhVa9pMp7j1V3FdiOStPMiVlcgsHKIttd9SpRHWAMpUNSbt45tHXGps=
+# AQkFMQ8XDTIwMDgxMDA2MzczOFowIwYJKoZIhvcNAQkEMRYEFKDedefNsgN8nKlt
+# VEjh4WnEE0TzMA0GCSqGSIb3DQEBAQUABIIBADMZ/Uh+ZaSRmquEwj0VhFvjaiU7
+# uCzQHDG66dr0fTlgfYIYf9IHP8AWr+CAGW7y9a7RsVUeDxQgIW5PmkWNfiT0knjY
+# yZaHlx23veZErC2i/wmyagHNyEWZt6eS5r8cgVMKCTQI9yXKGT8uBK+A4FgjB6MU
+# /8S8z0KqiV2fbqUrOuNi/bQtPB6x3M2PgsCiBVqyLnw61Kmnb0G0zE1q46xIDH7y
+# mmU413hUs/urWCvD4LUMzyqvk6Jpj6hvfjUV05DWfLPnXh09oB6hzrrbi++uoB1s
+# f4cXJEm2SiqxX3Zwf41/tQuwiO7PT0+qr0eZ6dKsjC9YopzfixUsqHZCz0Y=
 # SIG # End signature block
